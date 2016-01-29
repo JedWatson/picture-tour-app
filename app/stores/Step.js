@@ -3,22 +3,13 @@
 const Store = require('store-prototype');
 const xhr = require('xhr');
 const constants = require('../../constants');
-
+const stepSocket = new WebSocket("ws://localhost:3000/step");
 const StepStore = new Store();
 
 let _currentStep = 0;
 let _availableSteps = 1;
 let _totalSteps = constants.TOTAL_STEPS;
 let _direction = 'next';
-
-const fetchAvailableStep = (callback) => {
-	xhr({
-		url: 'http://localhost:3000/step',
-		headers: {
-			'Content-Type': 'application/json',
-		},
-	}, callback);
-}
 
 StepStore.extend({
 	getState () {
@@ -40,10 +31,9 @@ StepStore.extend({
 		this.notifyChange();
 	},
 	update () {
-		clearTimeout(window.updateTimeout);
-		let lastCurrentStep = _currentStep;
-		fetchAvailableStep((err, response, data) => {
-			try {
+		stepSocket.onmessage = function (event) {
+			var data = event.data;
+		  try {
 				data = JSON.parse(data);
 				console.log(data);
 				const newStep = data.availableSteps || 1;
@@ -51,8 +41,7 @@ StepStore.extend({
 			} catch(e) {
 				console.error('Error: unable to load status data from the API', err, response);
 			}
-			window.updateTimeout = setTimeout(() => StepStore.update(), 1000);
-		});
+		}
 	},
 	setCurrentStep (step) {
 		let changed = false;
