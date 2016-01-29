@@ -30,17 +30,13 @@ StepStore.extend({
     _direction = 'prev';
 		this.notifyChange();
 	},
-	update () {
-		stepSocket.onmessage = function (event) {
-			var data = event.data;
-		  try {
-				data = JSON.parse(data);
-				console.log(data);
-				const newStep = data.availableSteps || 1;
-				this.setCurrentStep(newStep);
-			} catch(e) {
-				console.error('Error: unable to load status data from the API', err, response);
-			}
+	update (event) {
+		const newStep = event.data || 1;
+	  try {
+			console.log(newStep);
+			this.setCurrentStep(newStep);
+		} catch(e) {
+			console.error('Error: unable to load status data from the API', e);
 		}
 	},
 	setCurrentStep (step) {
@@ -60,6 +56,8 @@ StepStore.extend({
 	},
 });
 
-StepStore.update();
+stepSocket.onmessage = function(event){
+	StepStore.update(event);
+};
 
 module.exports = StepStore;

@@ -21,9 +21,8 @@ app.use(express.static('server/public'));
 app.get('/', (req, res) => res.render('index', getState()));
 app.get('/step', (req, res) => res.json(getState()));
 app.ws('/step', function(ws, req) {
-  ws.on('message', function(msg) {
-    ws.send(msg);
-  });
+  ws.send(getState().availableSteps);
+  next();
 });
 const stepWs = expressWs.getWss('/step');
 app.post('/step/:step', (req, res) => {
