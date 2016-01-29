@@ -31,7 +31,7 @@ StepStore.extend({
 		this.notifyChange();
 	},
 	update (event) {
-		const newStep = event.data || 1;
+		const newStep = +event.data || 1;
 	  try {
 			console.log(newStep);
 			this.setCurrentStep(newStep);
